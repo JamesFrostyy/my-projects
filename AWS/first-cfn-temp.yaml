@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  This temp launch an free tier instance with a SG which enables SSH.
+
+Resources:
+  LogicalID:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-05fa00d4c63e32376
+      InstanceType: t2.micro
+      KeyName: penguinsdenemekp1 #sizin pem dosyanız...
+      SecurityGroups:
+        - !Ref CFNSecGroup  #altta tanımlanan özellikleri !ref ile yukarda çalışmasını sağlıyoruz.
+      Tags:
+        - Key: Name 
+          Value: First-CFN-Instance
+CFNSecGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GrouDescription: Enables SSH for CFN Instance # Required gerekli
+    SecurityGroupIngress:
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIP: 0.0.0.0/0
