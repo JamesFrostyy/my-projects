@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  Project-001 : Roman Numerals Converter Application (Python Flask) deployed
+  on AWS EC2 with Cloudformation and AWS CLI
+
+Parameters:
+
+  KeyPair:
+    Description: select your keypair.
+    Type: AWS::EC2::KeyPair::KeyName
+
+
+
+Resources:
+  CFNInstanceConvertRoman:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-05fa00d4c63e32376
+      InstanceType: t2.micro
+      KeyName: !Ref KeyPair #tekrar gelecegim
+      SecurityGroups:
+       - !Ref CFNConvertRomanSecGroup
+      Tags:
+       - Key: Name
+         Value: !Sub Web Server of ${AWS::StackName} Stack
+      UserData: !Base64 |  #Fn::Base64: !Sub |
+        #!/bin/bash
+        yum update -y
+        pip3 install flask
+        yum install git -y
+        cd /home/ec2-user
+        git clone https://github.com/JamesFrostyy/my-projects.git
+        cd 
+        cd /home/ec2-user/my-projects/Linux-Plus/Project-001-Roman-Numerals-Converter/
+        python3 app.py
+
+  CFNConvertRomanSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enables SSH and HTTP for CFN Instance # Required
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+Outputs:
+  WebsiteURL:
+    Description: The Roman Numerals Converter Application Website URL 
+    Value: !Sub
+      - http://${PublicAddress}
+      - PublicAddress: !GetAtt CFNInstanceConvertRoman.PublicIp
+    
